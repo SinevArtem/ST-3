@@ -6,19 +6,19 @@
 #include "TimedDoor.h"
 
 class MockTimerClient : public TimerClient {
-public:
+ public:
     MOCK_METHOD(void, Timeout, (), (override));
 };
 
 class MockDoor : public Door {
-public:
+ public:
     MOCK_METHOD(void, lock, (), (override));
     MOCK_METHOD(void, unlock, (), (override));
     MOCK_METHOD(bool, isDoorOpened, (), (override));
 };
 
 class TimedDoorTest : public ::testing::Test {
-protected:
+ protected:
     void SetUp() override {
         door = new TimedDoor(2);
     }
@@ -31,7 +31,7 @@ protected:
 };
 
 class DoorTimerAdapterTest : public ::testing::Test {
-protected:
+ protected:
     void SetUp() override {
         timedDoor = new TimedDoor(2);
         adapter = new DoorTimerAdapter(*timedDoor);
@@ -54,7 +54,7 @@ TEST_F(TimedDoorTest, ConstructorInitializesCorrectly) {
 TEST_F(TimedDoorTest, LockAndUnlockWorkCorrectly) {
     door->unlock();
     EXPECT_TRUE(door->isDoorOpened());
-    
+
     door->lock();
     EXPECT_FALSE(door->isDoorOpened());
 }
@@ -71,7 +71,7 @@ TEST_F(TimedDoorTest, ThrowStateThrowsExceptionWhenDoorOpened) {
 TEST_F(TimedDoorTest, ThrowStateAlwaysThrowsException) {
     door->lock();
     EXPECT_THROW(door->throwState(), std::runtime_error);
-    
+
     door->unlock();
     EXPECT_THROW(door->throwState(), std::runtime_error);
 }
@@ -89,14 +89,14 @@ TEST_F(DoorTimerAdapterTest, TimeoutDoesNotThrowWhenDoorClosed) {
 TEST(TimerTest, TregisterCallsTimeoutAfterDelay) {
     MockTimerClient mockClient;
     Timer timer;
-    
+
     EXPECT_CALL(mockClient, Timeout())
         .Times(1);
-    
+
     std::thread timerThread([&timer, &mockClient]() {
         timer.tregister(1, &mockClient);
     });
-    
+
     timerThread.join();
 }
 
@@ -104,10 +104,10 @@ TEST(IntegrationTest, DoorOpenedAndTimerCausesException) {
     TimedDoor door(1);
     DoorTimerAdapter adapter(door);
     Timer timer;
-    
+
     door.unlock();
     EXPECT_TRUE(door.isDoorOpened());
-    
+
     EXPECT_THROW(timer.tregister(1, &adapter), std::runtime_error);
 }
 
@@ -115,15 +115,15 @@ TEST(IntegrationTest, DoorClosedBeforeTimeoutNoException) {
     TimedDoor door(1);
     DoorTimerAdapter adapter(door);
     Timer timer;
-    
+
     door.unlock();
     EXPECT_TRUE(door.isDoorOpened());
-    
+
     std::thread closeDoor([&door]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         door.lock();
     });
-    
+
     EXPECT_NO_THROW(timer.tregister(1, &adapter));
     closeDoor.join();
 }
@@ -141,7 +141,7 @@ TEST(TimedDoorTimeoutTest, DifferentTimeoutValues) {
     TimedDoor door1(5);
     TimedDoor door2(10);
     TimedDoor door3(0);
-    
+
     EXPECT_EQ(door1.getTimeOut(), 5);
     EXPECT_EQ(door2.getTimeOut(), 10);
     EXPECT_EQ(door3.getTimeOut(), 0);
@@ -150,7 +150,7 @@ TEST(TimedDoorTimeoutTest, DifferentTimeoutValues) {
 TEST(TimedDoorNegativeTimeoutTest, NegativeTimeoutValue) {
     TimedDoor door(-1);
     EXPECT_EQ(door.getTimeOut(), -1);
-    
+
     door.unlock();
     EXPECT_TRUE(door.isDoorOpened());
     door.lock();
@@ -161,13 +161,12 @@ TEST(IntegrationTest, OpenTimerCloseTimerSequence) {
     TimedDoor door(1);
     DoorTimerAdapter adapter(door);
     Timer timer;
-    
+
     door.unlock();
     EXPECT_THROW(timer.tregister(1, &adapter), std::runtime_error);
-    
-    // Закрыли дверь
+
     door.lock();
-    
+
     door.unlock();
     EXPECT_THROW(timer.tregister(1, &adapter), std::runtime_error);
 }
