@@ -1,20 +1,12 @@
+# This is a basic workflow to help you get started with Actions
+
 name: cpplint
-
 on: [push, pull_request]
-
 jobs:
   cpplint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-    
-    - name: Install cpplint
-      run: pip install cpplint
-    
-    - name: Run cpplint
-      run: cpplint --filter=-build/include_subdir,-whitespace/comments,+whitespace/indent,-build/c++11 --recursive .
-      continue-on-error: true
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - run: pip install cpplint
+    - run: cpplint --filter=-build/include_subdir,-whitespace/comments,+whitespace/indent --recursive .

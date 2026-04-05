@@ -8,7 +8,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 include_directories(${gtest_SOURCE_DIR}/include)
-include_directories(${gmock_SOURCE_DIR}/include)
 message(PROJECT_SOURCE_DIR="${gtest_SOURCE_DIR}/include")
 include_directories(${${PROJECT_NAME}_SOURCE_DIR}/include)
 set(header ${${PROJECT_NAME}_SOURCE_DIR}/include)
