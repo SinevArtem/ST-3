@@ -129,7 +129,7 @@ TEST(IntegrationTest, DoorClosedBeforeTimeoutNoException) {
 }
 
 TEST_F(TimedDoorTest, MultipleLockUnlockCyclesWork) {
-    for(int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
         door->unlock();
         EXPECT_TRUE(door->isDoorOpened());
         door->lock();
